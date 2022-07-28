@@ -7,6 +7,7 @@ class Burrows_Wheeler:
 		self.C_table, self.C_alphabet = self.Make_C_table()
 		self.Occ_table, self.Occ_alphabet = self.Make_Occ_table()
 		self.suffix_index = self.make_suffix_array_index()
+		return
 
 
 	def get_row_numbers(self, c):
@@ -68,23 +69,23 @@ class Burrows_Wheeler:
 	def search_bw(self, pattern):
 		pattern_rev = pattern[::-1]
 
-		start, end = self.get_row_numbers(pattern[0])
+		start, end = self.get_row_numbers(pattern_rev[0])
 		row_to_read = [0] * (end - start)
-		print('The symbol we are looking for is',pattern[0])
+		print('The symbol we are looking for is',pattern_rev[0])
 		print('Looking at the C-table, we must look from row',start,"to row",end-1)
 		for i in range(start, end):
 			row_to_read[i - start] = i
 		symbol = 0
-		while symbol < len(pattern) - 1 and len(row_to_read) > 0:
+		while symbol < len(pattern_rev) - 1 and len(row_to_read) > 0:
 			i = 0
 			symbol += 1
 			while i < len(row_to_read):
-				if self.bwt[row_to_read[i]] == pattern[symbol]:
+				if self.bwt[row_to_read[i]] == pattern_rev[symbol]:
 					my_occ = self.C_table[self.bwt[row_to_read[i]]]
 					my_symbol = self.bwt[row_to_read[i]]
-					my_rank = self.Occ_table[row_to_read[i]][self.Occ_alphabet.index(pattern[symbol])] - 1
+					my_rank = self.Occ_table[row_to_read[i]][self.Occ_alphabet.index(pattern_rev[symbol])] - 1
 					my_row = row_to_read[i]
-					row_to_read[i] = self.C_table[self.bwt[row_to_read[i]]] + self.Occ_table[row_to_read[i]][self.Occ_alphabet.index(pattern[symbol])] - 1
+					row_to_read[i] = self.C_table[self.bwt[row_to_read[i]]] + self.Occ_table[row_to_read[i]][self.Occ_alphabet.index(pattern_rev[symbol])] - 1
 					print("The symbol at row", my_row, "is", my_symbol, "and the rank is",my_rank,"so we look in row", my_occ, "+",my_rank, "=",my_occ+my_rank)
 
 					i += 1
@@ -105,7 +106,7 @@ class Burrows_Wheeler:
 # the principle
 
 text = 'GACACTCACG$' #'GCACTCACAG$'
-pattern = 'CAA'
+pattern = 'CAC'
 
 bw = Burrows_Wheeler(text)
 bw.search_bw(pattern)
